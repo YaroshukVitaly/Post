@@ -1,5 +1,7 @@
 package by.yaroshuk.post;
 
+import java.util.List;
+
 public class Main {
     public static void main (String[] args){
         MessageBox messageBox = new MessageBox(3);
@@ -26,6 +28,26 @@ public class Main {
         boolean d = messageBox.delete(1);
         System.out.println("d = " + d);
         System.out.println(messageBox);
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+        List<Message> list = messageBox.list();
+        for (Message message : list){
+            System.out.println("MESSAGE" + message);
+            
+        }
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+        List<Long> ids = messageBox.sendToMainOffice();
+        System.out.println(ids);
+        System.out.println(messageBox);
+
+
 
     }
 }
