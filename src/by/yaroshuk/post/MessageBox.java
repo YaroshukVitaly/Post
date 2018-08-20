@@ -23,6 +23,21 @@ public class MessageBox {
                 return message.getId();
     }
 
+    public  Message search(long id){
+        for (Message message : messages) {
+            if (message.getId() == id){
+                return message;
+            }
+        }
+        return null;
+    }
+
+    public boolean delete(long id){
+        Message message = search(id);
+        return messages.remove(message);
+
+
+    }
     @Override
     public String toString() {
         return "MessageBox{" +
