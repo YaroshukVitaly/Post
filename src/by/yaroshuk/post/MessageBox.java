@@ -2,6 +2,7 @@ package by.yaroshuk.post;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class MessageBox {
@@ -34,27 +35,32 @@ public class MessageBox {
     }
 //Метод для удаления!
     public boolean delete(long id){
-        Message message = search(id);
-        return messages.remove(message);
+        Iterator<Message> iterator = messages.iterator();
+        while (iterator.hasNext()){
+            Message next = iterator.next();
+            if (next.getId() == id){
+                iterator.remove();
+                return true;
+            }
+
+        }
+        return false;
 
 
     }
 //Метод для отметки отпраки пиcем
     public List<Long> sendToMainOffice () {
-        List<Message> toRemove = new ArrayList<Message>();
-        for (Message message  : messages) {
-            boolean accepted = mainOffice.queue(message);
-            if (accepted) {
-                toRemove.add(message);
-
+        List<Long> ids = new ArrayList<Long>();
+        Iterator<Message> iterator = messages.iterator();
+        while (iterator.hasNext()){
+            Message next = iterator.next();
+            boolean accepted = mainOffice.queue(next);
+            if (accepted){
+                ids.add(next.getId());
+                iterator.remove();
             }
         }
-        List<Long> ids = new ArrayList<Long>();
-        for (Message message : toRemove) {
-            ids.add(message.getId());
-            messages.remove(message);
 
-        }
         return ids;
     }
 //Метод отображения текущего списка элементов
