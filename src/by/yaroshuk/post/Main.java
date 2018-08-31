@@ -4,7 +4,8 @@ import java.util.List;
 
 public class Main {
     public static void main (String[] args){
-   UserConsoleInputReader consoleInputReader = new UserConsoleInputReader();
-   consoleInputReader.start();
+        MessageBox messageBox = new MessageBox();
+        UserConsoleInputReader consoleInputReader = new UserConsoleInputReader(messageBox);
+        consoleInputReader.start();
     }
 }
