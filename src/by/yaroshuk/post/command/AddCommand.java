@@ -1,6 +1,7 @@
 package by.yaroshuk.post.command;
 
 import by.yaroshuk.post.Message;
+import by.yaroshuk.post.MessageBox;
 
 public class AddCommand implements UserCommand {
     private String sender;
@@ -15,19 +16,9 @@ public class AddCommand implements UserCommand {
         this.category = category;
     }
 
-    public String getSender() {
-        return sender;
-    }
+    @Override
+    public void execute(MessageBox messageBox) {
+        messageBox.add(category, sender, address, reciever);
 
-    public String getReciever() {
-        return reciever;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public Message.MassageCategory getCategory() {
-        return category;
     }
 }
