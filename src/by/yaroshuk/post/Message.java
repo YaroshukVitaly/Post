@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Message {
 
-    enum MassageCategory {
+    public enum MassageCategory {
             REGULAR, SPECIAL, FIRST_CLASS
     }
     private MassageCategory category;

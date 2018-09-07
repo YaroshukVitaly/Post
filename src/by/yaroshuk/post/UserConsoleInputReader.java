@@ -1,109 +1,50 @@
 package by.yaroshuk.post;
 
+import by.yaroshuk.post.command.*;
+
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 public class UserConsoleInputReader {
     private Scanner scanner;
-    private MessageBox messageBox;
-    public UserConsoleInputReader(MessageBox messageBox){
-        this.messageBox = messageBox;
+        public UserConsoleInputReader(){
         scanner = new Scanner(System.in);
-
     }
-    public void start (){
-        while (true){
-            String line = scanner.nextLine();
 
-            parseAndExecutLine(line);
-        }
-    }
-    private void parseAndExecutLine(String line) {
-        Scanner s = new Scanner(line);
-        //remove 2
+    public UserCommand nextCommand (){
+        Scanner s = new Scanner(scanner.nextLine());
         String token = s.next();
         if (token.equalsIgnoreCase("remove")){
-            if (s.hasNextLong()){
-                long l = s.nextLong();
-                if (s.hasNext()){
-                    System.out.println("Unknown format: " + line);
-                }else {
-                    remove (l);
-                }
-            }else if (s.hasNext()){
-                System.out.println("Unknown format: " + line);
-            }else {
-                System.out.println("Wrong format: remove $id - no $id: " + line);
-            }
+            return parseRemove(s);
         }else if (token.equalsIgnoreCase("edit")){
-            if (s.hasNextLong()){
-                long l = s.nextLong();
-                if (s.hasNext()){
-                    System.out.println("Unknown format: " + line);
-                }else {
-                    edit (l);
-                }
-            }else if (s.hasNext()){
-                System.out.println("Unknown format: " + line);
-            }else {
-                System.out.println("Wrong format: edit $id - no $id: " + line);
-            }
+            return parseEdit(s);
 
         }else if (token.equalsIgnoreCase("add")){
-            if (s.hasNext()){
-                System.out.println("Unknown format: " + line);
-            }else add ();
+            return parseAdd(s);
         }else if (token.equalsIgnoreCase("send")){
-            if (s.hasNext()){
-                System.out.println("Unknown format: " + line);
-            }else send ();
+            if (!s.hasNext()) {
+                return new SendCommand();
+            }
         }else if (token.equalsIgnoreCase("list")){
-            if (s.hasNext()){
-                System.out.println("Unknown format: " + line);
-            }else list ();
+            if (!s.hasNext()) {
+                return new ListCommand();
+            }
         }else if (token.equalsIgnoreCase("help")){
-            if (s.hasNext()){
-                System.out.println("Unknown format: " + line);
-            }else help ();
+            if (!s.hasNext()) {
+                return new HelpCommand();
+            }
         }else if (token.equalsIgnoreCase("exit")){
-            if (s.hasNext()){
-                System.out.println("Unknown format: " + line);
-            }else exit ();
-        }else {
-            processUnknownComand(line);
+            if (!s.hasNext()) {
+                return new ExitCommand();
+            }
         }
+        return null;
     }
 
-    private void help() {
-        System.out.println("You can use following commands: ");
-        System.out.println("add");
-        System.out.println("send");
-        System.out.println("list");
-        System.out.println("edit <<id>>");
-        System.out.println("remove <<id>>");
-        System.out.println("help");
-        System.out.println("exit");
-        System.out.println("HELPING...");
-    }
-
-    private void list() {
-        System.out.println("LISTING....");
-        System.out.println("Messages in box: ");
-        for (Message message : messageBox.list()){
-            System.out.println(message);
+    private AddCommand parseAdd(Scanner s) {
+        if (s.hasNext()) {
+            return null;
         }
-    }
-
-    private void send() {
-        System.out.println("SENDING....");
-        List<Long> longs = messageBox.sendToMainOffice();
-        System.out.println("Following messges were send:" + longs);
-
-    }
-
-    private void add() {
-        System.out.println("ADDING...");
         System.out.println("Please, enter sender: ");
         String sender = scanner.nextLine();
         System.out.println("Please, enter reciever: ");
@@ -113,11 +54,30 @@ public class UserConsoleInputReader {
         System.out.println("Please, enter category from " + Arrays.toString(Message.MassageCategory.values()));
         String category = scanner.nextLine().trim();
         Message.MassageCategory cat = parceCategory(category);
-        messageBox.add(cat, sender, address, reciever);
-
+        return new AddCommand(sender, reciever, address, cat);
     }
 
-    private Message.MassageCategory parceCategory(String category) {
+    private EditCommand parseEdit(Scanner s) {
+        if (s.hasNextLong()){
+            long l = s.nextLong();
+            if (!s.hasNext()){
+                return new EditCommand(l);
+            }
+        }
+        return null;
+    }
+
+    private RemoveCommand parseRemove(Scanner s) {
+        if (s.hasNextLong()){
+            long l = s.nextLong();
+            if (!s.hasNext()){
+                return new RemoveCommand(l);
+            }
+        }
+        return null;
+    }
+
+      private Message.MassageCategory parceCategory(String category) {
         Message.MassageCategory cat;
         switch (category){
             case "first_class" :
@@ -134,53 +94,26 @@ public class UserConsoleInputReader {
         return cat;
     }
 
-    private void edit(long l) {
-        System.out.println("EDITING " + l);
-
-        Message message = messageBox.search(l);
-        if (message == null){
-            System.out.println("Message " + l + "was not found!");
-        }else {
-            System.out.print("Change sender (" + message.getSender() + ") if you want: ");
-            String line = scanner.nextLine().trim();
-            if (!line.isEmpty()){
-                message.setSender(line);
-            }
-            System.out.print("Change receiver (" + message.getReceiver() + ") if you want: ");
-            line = scanner.nextLine().trim();
-            if (!line.isEmpty()){
-                message.setReceiver(line);
-            }
-            System.out.print("Change address (" + message.getAddress() + ") if you want: ");
-            line = scanner.nextLine().trim();
-            if (!line.isEmpty()){
-                message.setAddress(line);
-            }
-            System.out.print("Change category (" + message.getCategory() + ") if you want: ");
-            line = scanner.nextLine().trim();
-            if (!line.isEmpty()){
-                message.setCategory(parceCategory(line));
-            }
+    public void readEdit(EditCommand command, Message message) {
+        System.out.print("Change sender (" + message.getSender() + ") if you want: ");
+        String line = scanner.nextLine().trim();
+        if (!line.isEmpty()){
+            command.setSender(line);
         }
-
-    }
-
-    private void remove(long l) {
-        System.out.println("REMOVING " + l);
-        boolean delete = messageBox.delete(l);
-        if (delete) {
-            System.out.println("Message" + l + "was sucessfully remove!");
-        }else {
-            System.out.println("Message" + l + "was not found!");
+        System.out.print("Change receiver (" + message.getReceiver() + ") if you want: ");
+        line = scanner.nextLine().trim();
+        if (!line.isEmpty()){
+            command.setReceiver(line);
         }
-    }
-
-    private void processUnknownComand(String line) {
-        System.out.println("Unknown comand: " + line );
-    }
-
-    private void exit (){
-        System.out.println("Exiting...");
-        System.exit(0);
+        System.out.print("Change address (" + message.getAddress() + ") if you want: ");
+        line = scanner.nextLine().trim();
+        if (!line.isEmpty()){
+            command.setAddress(line);
+        }
+        System.out.print("Change category (" + message.getCategory() + ") if you want: ");
+        line = scanner.nextLine().trim();
+        if (!line.isEmpty()){
+            command.setCategory(parceCategory(line));
+        }
     }
 }
